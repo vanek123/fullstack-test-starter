@@ -10,18 +10,38 @@ use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
 
+use App\Model\SimpleProduct;
+
 class GraphQL {
     static public function handle() {
         try {
+
+            $productType = new ObjectType([
+                'name' => 'Product',
+                'fields' => [
+                    'id' => [
+                        'type' => Type::int(),
+                        'resolve' => fn($product) => $product->getId()
+                        ],
+                    'name' => [
+                        'type' => Type::string(),
+                        'resolve' => fn($product) => $product->getName()
+                    ] 
+                ],
+            ]);
+
             $queryType = new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'echo' => [
-                        'type' => Type::string(),
-                        'args' => [
-                            'message' => ['type' => Type::string()],
-                        ],
-                        'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
+                    'products' => [
+                        'type' => Type::listOf($productType),
+
+                        'resolve' => function () {
+                            return [
+                                new SimpleProduct(1, 'Product 1'),
+                                new SimpleProduct(2, 'Product 2'),
+                            ];
+                        }
                     ],
                 ],
             ]);
