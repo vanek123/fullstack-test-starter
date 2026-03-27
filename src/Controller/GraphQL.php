@@ -11,10 +11,40 @@ use RuntimeException;
 use Throwable;
 
 use App\Model\SimpleProduct;
+use App\Model\DVD;
+use App\Model\Furniture;
+use App\Model\Book;
 
 class GraphQL {
     static public function handle() {
         try {
+            
+            $attributeType = new ObjectType([
+                'name' => 'Attribute',
+                'fields' => [
+                    'height' => [
+                        'type' => Type::float(),
+                        'resolve' => fn($attr) => $attr['height'] ?? null
+                        ],
+                    'width' => [
+                        'type' => Type::float(),
+                        'resolve' => fn($attr) => $attr['width'] ?? null
+                        ],
+
+                    'length' => [
+                        'type' => Type::float(),
+                        'resolve' => fn($attr) => $attr['length'] ?? null
+                        ],
+                    'weight' => [
+                        'type' => Type::float(),
+                        'resolve' => fn($attr) => $attr['weight'] ?? null
+                        ],
+                    'size' => [
+                        'type' => Type::float(),
+                        'resolve' => fn($attr) => $attr['size'] ?? null
+                    ] 
+                ]
+            ]);
 
             $productType = new ObjectType([
                 'name' => 'Product',
@@ -26,6 +56,10 @@ class GraphQL {
                     'name' => [
                         'type' => Type::string(),
                         'resolve' => fn($product) => $product->getName()
+                        ],
+                    'attributes' => [
+                        'type' => $attributeType,
+                        'resolve' => fn($product) => $product->getAttributes()
                     ] 
                 ],
             ]);
@@ -40,6 +74,9 @@ class GraphQL {
                             return [
                                 new SimpleProduct(1, 'Product 1'),
                                 new SimpleProduct(2, 'Product 2'),
+                                new DVD(3, 'DVD 1', 5.5),
+                                new Book(4, 'Book 1', 2),
+                                new Furniture(5, 'Chair 1', 10, 20, 30)
                             ];
                         }
                     ],
