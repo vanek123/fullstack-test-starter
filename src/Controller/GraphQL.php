@@ -10,75 +10,25 @@ use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
 
-use App\Model\SimpleProduct;
-use App\Model\DVD;
-use App\Model\Furniture;
-use App\Model\Book;
+use App\GraphQL\Types\ProductType;
+use App\GraphQL\Types\CategoryType;
+use App\GraphQL\Resolvers\CategoryResolver;
+use App\GraphQL\Resolvers\ProductResolver;
 
 class GraphQL {
     static public function handle() {
         try {
-            
-            $attributeType = new ObjectType([
-                'name' => 'Attribute',
-                'fields' => [
-                    'height' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['height'] ?? null
-                        ],
-                    'width' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['width'] ?? null
-                        ],
-
-                    'length' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['length'] ?? null
-                        ],
-                    'weight' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['weight'] ?? null
-                        ],
-                    'size' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['size'] ?? null
-                    ] 
-                ]
-            ]);
-
-            $productType = new ObjectType([
-                'name' => 'Product',
-                'fields' => [
-                    'id' => [
-                        'type' => Type::int(),
-                        'resolve' => fn($product) => $product->getId()
-                        ],
-                    'name' => [
-                        'type' => Type::string(),
-                        'resolve' => fn($product) => $product->getName()
-                        ],
-                    'attributes' => [
-                        'type' => $attributeType,
-                        'resolve' => fn($product) => $product->getAttributes()
-                    ] 
-                ],
-            ]);
 
             $queryType = new ObjectType([
                 'name' => 'Query',
                 'fields' => [
                     'products' => [
-                        'type' => Type::listOf($productType),
-
-                        'resolve' => function () {
-                            return [
-                                new SimpleProduct(1, 'Product 1'),
-                                new SimpleProduct(2, 'Product 2'),
-                                new DVD(3, 'DVD 1', 5.5),
-                                new Book(4, 'Book 1', 2),
-                                new Furniture(5, 'Chair 1', 10, 20, 30)
-                            ];
-                        }
+                        'type' => Type::listOf(new ProductType()),
+                        'resolve' => fn() => (new ProductResolver())->resolve(null),
+                    ],
+                    'categories' => [
+                        'type' => Type::listOf(new CategoryType()),
+                        'resolve' => fn() => (new CategoryResolver())->resolve(null),
                     ],
                 ],
             ]);
@@ -86,13 +36,9 @@ class GraphQL {
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
                 'fields' => [
-                    'sum' => [
-                        'type' => Type::int(),
-                        'args' => [
-                            'x' => ['type' => Type::int()],
-                            'y' => ['type' => Type::int()],
-                        ],
-                        'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
+                    'placeOrder' => [
+                        'type' => Type::boolean(),
+                        'resolve' => fn() => true,
                     ],
                 ],
             ]);
@@ -114,8 +60,8 @@ class GraphQL {
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
         
-            $rootValue = ['prefix' => 'You said: '];
-            $result = GraphQLBase::executeQuery($schema, $query, $rootValue, null, $variableValues);
+            //$rootValue = ['prefix' => 'You said: '];
+            $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
             $output = $result->toArray();
         } catch (Throwable $e) {
             $output = [
