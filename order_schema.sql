@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    selected_attributes JSON,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
