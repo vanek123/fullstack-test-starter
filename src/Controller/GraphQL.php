@@ -12,8 +12,11 @@ use Throwable;
 
 use App\GraphQL\Types\ProductType;
 use App\GraphQL\Types\CategoryType;
+use App\GraphQL\Types\OrderInputType;
+
 use App\GraphQL\Resolvers\CategoryResolver;
 use App\GraphQL\Resolvers\ProductResolver;
+use App\GraphQL\Resolvers\OrderResolver;
 
 class GraphQL {
     static public function handle() {
@@ -38,7 +41,10 @@ class GraphQL {
                 'fields' => [
                     'placeOrder' => [
                         'type' => Type::boolean(),
-                        'resolve' => fn() => true,
+                        'args' => [
+                            'order' => Type::nonNull(new OrderInputType()),
+                        ],
+                        'resolve' => fn($root, $args) => (new OrderResolver())->placeOrder($args),
                     ],
                 ],
             ]);
@@ -60,7 +66,6 @@ class GraphQL {
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
         
-            //$rootValue = ['prefix' => 'You said: '];
             $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
             $output = $result->toArray();
         } catch (Throwable $e) {

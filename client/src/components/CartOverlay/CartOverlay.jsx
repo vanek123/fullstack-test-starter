@@ -4,17 +4,15 @@ import { gql } from '@apollo/client';
 import './CartOverlay.css';
 import { useMutation } from '@apollo/client/react'
 
-const CREATE_ORDER = gql`
-  mutation CreateOrder($order: OrderInput!) {
-    createOrder(order: $order) {
-      id
-    }
+const PLACE_ORDER = gql`
+  mutation PlaceOrder($order: OrderInput!) {
+    placeOrder(order: $order)
   }
 `;
 
 function CartOverlay({ onClose }) {
     const { cartItems, updateQuantity, totalQuantity, clearCart } = useCart();
-    const [createOrder, { loading }] = useMutation(CREATE_ORDER);
+    const [placeOrder, { loading }] = useMutation(PLACE_ORDER);
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -40,11 +38,11 @@ function CartOverlay({ onClose }) {
                 }))
             }));
 
-            await createOrder({ variables: { order: { products: productsInput } } });
+            await placeOrder({ variables: { order: { products: productsInput } } });
             
             clearCart();
             onClose();
-            alert('Order created!');
+            alert('Order placed successfully!');
         } catch (e) {
             console.error("Order mutation failed:", e);
         }

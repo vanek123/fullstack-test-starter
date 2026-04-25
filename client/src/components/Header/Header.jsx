@@ -5,7 +5,6 @@ import { gql } from '@apollo/client'
 import { NavLink } from 'react-router-dom';
 import { useCart } from '../../context/CartContext'
 import CartOverlay from '../CartOverlay/CartOverlay'
-import { useState } from 'react'
 
 import logo from '../../assets/VSF.svg'
 import cartIcon from '../../assets/Vector.svg'
