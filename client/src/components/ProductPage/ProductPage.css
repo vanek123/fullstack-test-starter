@@ -11,6 +11,7 @@
 .pdp-layout {
     display: flex;
     gap: 40px;
+
 }
 
 .pdp-thumbnails {
@@ -49,6 +50,7 @@
     position: relative;
     flex: 1;
     max-width: 610px;
+    height: 550px;
     display: flex;
     align-items: center;
     justify-content: center;

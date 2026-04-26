@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS scandiweb_test CHARACTER SET utf8mb4;
-USE scandiweb_test;
+-- CREATE DATABASE IF NOT EXISTS scandiweb_test CHARACTER SET utf8mb4;
+-- USE scandiweb_test;
 
 CREATE TABLE categories (
     name VARCHAR(100) NOT NULL,

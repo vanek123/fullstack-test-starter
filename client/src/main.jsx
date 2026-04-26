@@ -6,6 +6,7 @@ import App from './App.jsx'
 import { ApolloClient, HttpLink, InMemoryCache, gql} from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 
+/* Initialize Apollo Client to manage GraphQL state and requests */
 const client = new ApolloClient({
   link: new HttpLink({ uri: import.meta.env.VITE_GRAPHQL_URL }),
   cache: new InMemoryCache(),
@@ -13,7 +14,8 @@ const client = new ApolloClient({
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ApolloProvider client={client}>
+    {/* Apollo Provider to wrap the entire app to provide GraphQL access to all components */}
+    <ApolloProvider client={client}> 
       <App />
     </ApolloProvider>
   </StrictMode>,
