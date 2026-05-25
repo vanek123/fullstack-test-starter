@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\GraphQL\Types;
 
@@ -14,7 +14,7 @@ class OrderInputType extends InputObjectType
             'fields' => [
                 'products' => [
                     'type' => Type::nonNull(Type::listOf(Type::nonNull(new ProductInputType()))),
-                ]
+                ],
             ],
         ]);
     }

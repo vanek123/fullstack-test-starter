@@ -3,6 +3,7 @@
 namespace App\Model\Product;
 
 use App\Model\AbstractModel;
+
 use PDO;
 
 abstract class AbstractProduct extends AbstractModel
@@ -27,7 +28,8 @@ abstract class AbstractProduct extends AbstractModel
         array $gallery,
         array $attributes,
         array $prices
-    ) {
+    )
+    {
         $this->id = $id;
         $this->name = $name;
         $this->inStock = $inStock;

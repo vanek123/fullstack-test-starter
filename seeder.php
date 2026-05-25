@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 $host = $_ENV['DB_HOST'];
 $username = $_ENV['DB_USER'];
 $password = $_ENV['DB_PASS'];
@@ -34,7 +35,7 @@ $conn->exec("SET FOREIGN_KEY_CHECKS = 1");
 echo "Tables cleared!\n";
 $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (:name)");
 
-foreach($data['categories'] as $category) {
+foreach ($data['categories'] as $category) {
     $stmt->execute([':name' => $category['name']]);
     echo "Category added: " . $category['name'] . "\n";
 }
@@ -42,7 +43,7 @@ foreach($data['categories'] as $category) {
 $stmt = $conn->prepare("INSERT INTO products (id, name, in_stock, description, category, brand) 
 VALUES(:id, :name, :in_stock, :description, :category, :brand)");
 
-foreach($data['products'] as $product) {
+foreach ($data['products'] as $product) {
     $stmt->execute([
         ':id' => $product['id'],
         ':name' => $product['name'],
@@ -50,14 +51,14 @@ foreach($data['products'] as $product) {
         ':description' => $product['description'],
         ':category' => $product['category'],
         ':brand' => $product['brand'],
-        ]);
-        echo "Product added: " . $product['name'] . "\n";
-} 
+    ]);
+    echo "Product added: " . $product['name'] . "\n";
+}
 
 $stmt = $conn->prepare("INSERT INTO prices (product_id, amount, currency_label, currency_symbol) 
 VALUES(:product_id, :amount, :currency_label, :currency_symbol)");
 
-foreach($data['products'] as $product) {
+foreach ($data['products'] as $product) {
     foreach ($product['prices'] as $price) {
         $stmt->execute([
             ':product_id' => $product['id'],
@@ -73,12 +74,12 @@ foreach($data['products'] as $product) {
 $stmt = $conn->prepare("INSERT INTO product_gallery (product_id, image_url, sort_order)
 VALUES(:product_id, :image_url, :sort_order)");
 
-foreach($data['products'] as $product) {
+foreach ($data['products'] as $product) {
     foreach ($product['gallery'] as $index => $imageUrl) {
         $stmt->execute([
-        ':product_id' => $product['id'],
-        ':image_url' => $imageUrl,
-        ':sort_order' => $index,
+            ':product_id' => $product['id'],
+            ':image_url' => $imageUrl,
+            ':sort_order' => $index,
         ]);
     }
     echo "Gallery added: " . $product['name'] . "\n";
@@ -90,7 +91,7 @@ VALUES(:product_id, :name, :type)");
 $stmtItems = $conn->prepare("INSERT INTO attribute_items (attribute_id, display_value, value)
 VALUES(:attribute_id, :display_value, :value)");
 
-foreach($data['products'] as $product) {
+foreach ($data['products'] as $product) {
     foreach ($product['attributes'] as $attribute) {
         $stmtAttributes->execute([
             ':product_id' => $product['id'],
@@ -99,16 +100,14 @@ foreach($data['products'] as $product) {
         ]);
         $attributeId = $conn->lastInsertId();
     
-        foreach($attribute['items'] as $item) {
+        foreach ($attribute['items'] as $item) {
             $stmtItems->execute([
                 ':attribute_id' => $attributeId,
                 ':display_value' => $item['displayValue'],
                 ':value' => $item['value'],
             ]);
         }
-    
-    }       
-
+    }
 }
 
 echo "\nDone! All data has been added.\n";

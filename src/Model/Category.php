@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace App\Model;
 
 class Category extends AbstractModel
@@ -10,4 +11,3 @@ class Category extends AbstractModel
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }
-

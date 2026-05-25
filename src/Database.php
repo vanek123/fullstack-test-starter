@@ -1,9 +1,8 @@
-<?php 
+<?php
 
 namespace App;
 
 use PDO;
-use PDOException;
 
 class Database
 {
@@ -19,7 +18,7 @@ class Database
 
             self::$instance = new PDO(
                 "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-                $username, 
+                $username,
                 $password,
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
             );

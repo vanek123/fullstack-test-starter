@@ -34,9 +34,9 @@ class ProductResolver
 
     private function buildProduct(array $product): AbstractProduct
     {
-        $gallery    = AbstractProduct::getProductGallery($product['id']);
+        $gallery = AbstractProduct::getProductGallery($product['id']);
         $attributes = AbstractProduct::getProductAttributes($product['id']);
-        $prices     = AbstractProduct::getProductPrices($product['id']);
+        $prices = AbstractProduct::getProductPrices($product['id']);
 
         $attributeObjects = [];
         foreach ($attributes as $attribute) {

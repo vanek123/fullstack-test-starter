@@ -11,4 +11,3 @@ class CategoryResolver
         return Category::getAll();
     }
 }
-

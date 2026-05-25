@@ -18,5 +18,3 @@ class AttributeInputType extends InputObjectType
         ]);
     }
 }
-
-

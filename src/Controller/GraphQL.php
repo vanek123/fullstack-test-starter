@@ -18,8 +18,10 @@ use App\GraphQL\Resolvers\CategoryResolver;
 use App\GraphQL\Resolvers\ProductResolver;
 use App\GraphQL\Resolvers\OrderResolver;
 
-class GraphQL {
-    static public function handle() {
+class GraphQL
+{
+    public static function handle()
+    {
         try {
             $productType = new ProductType();
             $categoryType = new CategoryType();
@@ -80,8 +82,7 @@ class GraphQL {
             $variableValues = $input['variables'] ?? null;
         
             $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
-            //$output = $result->toArray();
-            $output = $result->toArray(\GraphQL\Error\DebugFlag::INCLUDE_DEBUG_MESSAGE | \GraphQL\Error\DebugFlag::INCLUDE_TRACE);
+            $output = $result->toArray();
         } catch (Throwable $e) {
             $output = [
                 'errors' => [

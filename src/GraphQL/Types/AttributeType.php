@@ -4,6 +4,7 @@ namespace App\GraphQL\Types;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+
 use App\GraphQL\Types\AttributeItemType;
 
 class AttributeType extends ObjectType
@@ -23,8 +24,8 @@ class AttributeType extends ObjectType
                 ],
                 'type' => [
                     'type' => Type::string(),
-                    'resolve' => fn($attr) => $attr->getType()
-                ] 
+                    'resolve' => fn($attr) => $attr->getType(),
+                ]
             ],
         ]);
     }

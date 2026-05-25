@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model;
 
 class Order extends AbstractModel
@@ -15,8 +16,8 @@ class Order extends AbstractModel
             $orderId = $pdo->lastInsertId();
 
             $stmt = $pdo->prepare("
-            INSERT INTO order_items (order_id, product_id, quantity, selected_attributes)
-            VALUES (:order_id, :product_id, :quantity, :attributes)
+                INSERT INTO order_items (order_id, product_id, quantity, selected_attributes)
+                VALUES (:order_id, :product_id, :quantity, :attributes)
             ");
 
             foreach ($orderData['products'] as $product) {
@@ -34,11 +35,9 @@ class Order extends AbstractModel
 
             $pdo->commit();
             return true;
-        
         } catch (\Exception $e) {
             $pdo->rollBack();
             throw $e;
         }
     }
 }
-

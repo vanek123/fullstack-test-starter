@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\GraphQL\Types;
 
@@ -18,4 +18,3 @@ class CurrencyType extends ObjectType
         ]);
     }
 }
-
