@@ -10,75 +10,41 @@ use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
 
-use App\Model\SimpleProduct;
-use App\Model\DVD;
-use App\Model\Furniture;
-use App\Model\Book;
+use App\GraphQL\Types\ProductType;
+use App\GraphQL\Types\CategoryType;
+use App\GraphQL\Types\OrderInputType;
+
+use App\GraphQL\Resolvers\CategoryResolver;
+use App\GraphQL\Resolvers\ProductResolver;
+use App\GraphQL\Resolvers\OrderResolver;
 
 class GraphQL {
     static public function handle() {
         try {
-            
-            $attributeType = new ObjectType([
-                'name' => 'Attribute',
-                'fields' => [
-                    'height' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['height'] ?? null
-                        ],
-                    'width' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['width'] ?? null
-                        ],
-
-                    'length' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['length'] ?? null
-                        ],
-                    'weight' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['weight'] ?? null
-                        ],
-                    'size' => [
-                        'type' => Type::float(),
-                        'resolve' => fn($attr) => $attr['size'] ?? null
-                    ] 
-                ]
-            ]);
-
-            $productType = new ObjectType([
-                'name' => 'Product',
-                'fields' => [
-                    'id' => [
-                        'type' => Type::int(),
-                        'resolve' => fn($product) => $product->getId()
-                        ],
-                    'name' => [
-                        'type' => Type::string(),
-                        'resolve' => fn($product) => $product->getName()
-                        ],
-                    'attributes' => [
-                        'type' => $attributeType,
-                        'resolve' => fn($product) => $product->getAttributes()
-                    ] 
-                ],
-            ]);
+            $productType = new ProductType();
+            $categoryType = new CategoryType();
+            $orderInputType = new OrderInputType();
 
             $queryType = new ObjectType([
                 'name' => 'Query',
                 'fields' => [
                     'products' => [
                         'type' => Type::listOf($productType),
-
-                        'resolve' => function () {
-                            return [
-                                new SimpleProduct(1, 'Product 1'),
-                                new SimpleProduct(2, 'Product 2'),
-                                new DVD(3, 'DVD 1', 5.5),
-                                new Book(4, 'Book 1', 2),
-                                new Furniture(5, 'Chair 1', 10, 20, 30)
-                            ];
-                        }
+                        'args' => [
+                            'category' => Type::string(),
+                        ],
+                        'resolve' => fn($root, $args) => (new ProductResolver())->resolve($args),
+                    ],
+                    'product' => [
+                        'type' => $productType,
+                        'args' => [
+                            'id' => Type::nonNull(Type::string()),
+                        ],
+                        'resolve' => fn($root, $args) => (new ProductResolver())->getProduct($args),
+                    ],
+                    'categories' => [
+                        'type' => Type::listOf($categoryType),
+                        'resolve' => fn() => (new CategoryResolver())->resolve(),
                     ],
                 ],
             ]);
@@ -86,13 +52,12 @@ class GraphQL {
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
                 'fields' => [
-                    'sum' => [
-                        'type' => Type::int(),
+                    'placeOrder' => [
+                        'type' => Type::boolean(),
                         'args' => [
-                            'x' => ['type' => Type::int()],
-                            'y' => ['type' => Type::int()],
+                            'order' => Type::nonNull($orderInputType),
                         ],
-                        'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
+                        'resolve' => fn($root, $args) => (new OrderResolver())->placeOrder($args),
                     ],
                 ],
             ]);
@@ -114,13 +79,14 @@ class GraphQL {
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
         
-            $rootValue = ['prefix' => 'You said: '];
-            $result = GraphQLBase::executeQuery($schema, $query, $rootValue, null, $variableValues);
-            $output = $result->toArray();
+            $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
+            //$output = $result->toArray();
+            $output = $result->toArray(\GraphQL\Error\DebugFlag::INCLUDE_DEBUG_MESSAGE | \GraphQL\Error\DebugFlag::INCLUDE_TRACE);
         } catch (Throwable $e) {
             $output = [
-                'error' => [
+                'errors' => [
                     'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ],
             ];
         }

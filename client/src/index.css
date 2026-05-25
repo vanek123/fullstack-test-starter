@@ -1,0 +1,24 @@
+:root {
+  --c-primary: #5ECE7B;
+  --c-text: #1D1F22;
+  --c-white: #FFFFFF;
+  --font-family: 'Raleway', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  color: var(--c-text);
+  background-color: var(--c-white);
+}
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
