@@ -46,9 +46,10 @@ class ProductResolver
 
     private function buildProduct(array $product): AbstractProduct
     {
-        $gallery = $this->productRepository->getProductGallery($product['id']);
-        $attributes = $this->productRepository->getProductAttributes($product['id']);
-        $prices = $this->productRepository->getProductPrices($product['id']);
+        // gallery, attributes, prices уже в $product — не нужны отдельные запросы!
+        $gallery = $product['gallery'] ?? [];
+        $attributes = $product['attributes'] ?? [];
+        $prices = $product['prices'] ?? [];
 
         $attributeObjects = [];
         foreach ($attributes as $attribute) {
