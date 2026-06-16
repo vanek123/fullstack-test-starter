@@ -82,7 +82,6 @@ function ProductPage() {
 
         // Add to cart state and automatically open the cart overlay
         addToCart(product, selectedAttributes);
-        console.log('Added to cart:', product.name, selectedAttributes);
         setIsCartOpen(true);
     };
 

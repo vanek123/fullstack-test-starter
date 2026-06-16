@@ -2,6 +2,16 @@
 
 namespace App\Controller;
 
+use App\Database;
+use App\GraphQL\Resolvers\CategoryResolver;
+use App\GraphQL\Resolvers\OrderResolver;
+use App\GraphQL\Resolvers\ProductResolver;
+use App\GraphQL\Types\CategoryType;
+use App\GraphQL\Types\OrderInputType;
+use App\GraphQL\Types\ProductType;
+use App\Model\Category;
+use App\Model\Order;
+use App\Model\Repository\ProductRepository;
 use GraphQL\GraphQL as GraphQLBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -10,19 +20,16 @@ use GraphQL\Type\SchemaConfig;
 use RuntimeException;
 use Throwable;
 
-use App\GraphQL\Types\ProductType;
-use App\GraphQL\Types\CategoryType;
-use App\GraphQL\Types\OrderInputType;
-
-use App\GraphQL\Resolvers\CategoryResolver;
-use App\GraphQL\Resolvers\ProductResolver;
-use App\GraphQL\Resolvers\OrderResolver;
-
 class GraphQL
 {
     public static function handle()
     {
         try {
+            $pdo = Database::connect();
+            $productRepository = new ProductRepository($pdo);
+            $category = new Category($pdo);
+            $order = new Order($pdo);
+
             $productType = new ProductType();
             $categoryType = new CategoryType();
             $orderInputType = new OrderInputType();
@@ -35,18 +42,18 @@ class GraphQL
                         'args' => [
                             'category' => Type::string(),
                         ],
-                        'resolve' => fn($root, $args) => (new ProductResolver())->resolve($args),
+                        'resolve' => fn($root, $args) => (new ProductResolver($productRepository))->resolve($args),
                     ],
                     'product' => [
                         'type' => $productType,
                         'args' => [
                             'id' => Type::nonNull(Type::string()),
                         ],
-                        'resolve' => fn($root, $args) => (new ProductResolver())->getProduct($args),
+                        'resolve' => fn($root, $args) => (new ProductResolver($productRepository))->getProduct($args),
                     ],
                     'categories' => [
                         'type' => Type::listOf($categoryType),
-                        'resolve' => fn() => (new CategoryResolver())->resolve(),
+                        'resolve' => fn() => (new CategoryResolver($category))->resolve(),
                     ],
                 ],
             ]);
@@ -59,7 +66,7 @@ class GraphQL
                         'args' => [
                             'order' => Type::nonNull($orderInputType),
                         ],
-                        'resolve' => fn($root, $args) => (new OrderResolver())->placeOrder($args),
+                        'resolve' => fn($root, $args) => (new OrderResolver($order, $productRepository))->placeOrder($args),
                     ],
                 ],
             ]);
@@ -87,7 +94,6 @@ class GraphQL
             $output = [
                 'errors' => [
                     'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
                 ],
             ];
         }

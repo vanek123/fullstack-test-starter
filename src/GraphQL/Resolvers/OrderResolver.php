@@ -3,15 +3,25 @@
 namespace App\GraphQL\Resolvers;
 
 use App\Model\Order;
+use App\Model\Repository\ProductRepository;
 use InvalidArgumentException;
 
 class OrderResolver
 {
+    private Order $order;
+    private ProductRepository $productRepository;
+
+    public function __construct(Order $order, ProductRepository $productRepository)
+    {
+        $this->order = $order;
+        $this->productRepository = $productRepository;
+    }
+
     public function placeOrder(array $args): bool
     {
         $orderData = $args['order'];
         $this->validate($orderData);
-        return Order::create($orderData);
+        return $this->order->create($orderData);
     }
 
     private function validate(array $orderData): void
@@ -35,6 +45,9 @@ class OrderResolver
                 throw new InvalidArgumentException("Product #{$pos}: attributes must be an array.");
             }
 
+            $productObj = (new ProductResolver($this->productRepository))->getProduct(['id' => $product['id']]);
+            $productAttributes = $productObj?->getAttributes() ?? [];
+
             if (!empty($product['attributes'])) {
                 foreach ($product['attributes'] as $attr) {
                     if (empty($attr['name']) || !is_string($attr['name'])) {
@@ -47,7 +60,21 @@ class OrderResolver
                             "Product #{$pos}: each selectedAttribute must have a string value."
                         );
                     }
+
+                    foreach ($productAttributes as $attributeObj) {
+                        if ($attributeObj->getName() === $attr['name']) {
+                            if (!$attributeObj->isValidValue($attr['value'])) {
+                                throw new InvalidArgumentException(
+                                    "Product #{$pos}: invalid value '{$attr['value']}' for attribute '{$attr['name']}'."
+                                );
+                            }
+                        }
+                    }
                 }
+            }
+
+            if ($productObj !== null && !$productObj->validateAttributes($product['attributes'] ?? [])) {
+                throw new InvalidArgumentException("Invalid attributes for product {$product['id']}");
             }
         }
     }

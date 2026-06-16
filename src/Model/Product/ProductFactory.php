@@ -4,7 +4,7 @@ namespace App\Model\Product;
 
 class ProductFactory
 {
-    public static function create(
+    public function create(
         string $id,
         string $name,
         bool $inStock,
@@ -14,8 +14,7 @@ class ProductFactory
         array $gallery,
         array $attributes,
         array $prices
-    ): AbstractProduct
-    {
+    ): AbstractProduct {
         $types = [
             'clothes' => ClothingProduct::class,
             'tech' => TechProduct::class,

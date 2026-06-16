@@ -24,4 +24,6 @@ abstract class AbstractAttribute
     }
 
     abstract public function getType(): string;
+
+    abstract public function isValidValue(string $value): bool;
 }

@@ -4,9 +4,9 @@ namespace App\Model;
 
 class Order extends AbstractModel
 {
-    public static function create(array $orderData): bool
+    public function create(array $orderData): bool
     {
-        $pdo = self::getDb();
+        $pdo = $this->db;
 
         try {
             $pdo->beginTransaction();

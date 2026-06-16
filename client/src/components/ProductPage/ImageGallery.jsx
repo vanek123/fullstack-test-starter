@@ -20,7 +20,7 @@ function ImageGallery({ images, productName }) {
             <div className="pdp-thumbnails">
                 {images.map((img, idx) => (
                     <div 
-                        key={idx} 
+                        key={img} 
                         className={`thumb-wrapper ${mainImage === idx ? 'active' : ''}`}
                         onClick={() => setMainImage(idx)}
                     >
