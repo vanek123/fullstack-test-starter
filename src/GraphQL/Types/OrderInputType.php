@@ -13,7 +13,11 @@ class OrderInputType extends InputObjectType
             'name' => 'OrderInput',
             'fields' => [
                 'products' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(new ProductInputType()))),
+                    'type' => Type::nonNull(
+                        Type::listOf(
+                            Type::nonNull(new ProductInputType())
+                        )
+                    ),
                 ],
             ],
         ]);

@@ -7,7 +7,7 @@ use PDO;
 class Database
 {
     private static ?PDO $instance = null;
-    
+
     public static function connect(): PDO
     {
         if (self::$instance === null) {

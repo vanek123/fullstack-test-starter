@@ -52,7 +52,7 @@ abstract class AbstractProduct
             }
             if (!$attribute->isValidValue($selectedMap[$name])) {
                 return false;
-            }   
+            }
         }
 
         return true;

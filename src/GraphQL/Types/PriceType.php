@@ -2,10 +2,9 @@
 
 namespace App\GraphQL\Types;
 
+use App\GraphQL\Types\CurrencyType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-
-use App\GraphQL\Types\CurrencyType;
 
 class PriceType extends ObjectType
 {
@@ -25,7 +24,7 @@ class PriceType extends ObjectType
                         'symbol' => $price['currency_symbol'],
                     ],
                 ],
-            ]
+            ],
         ]);
-    }  
+    }
 }

@@ -26,6 +26,7 @@ class GraphQL
     {
         try {
             $pdo = Database::connect();
+
             $productRepository = new ProductRepository($pdo);
             $category = new Category($pdo);
             $order = new Order($pdo);
@@ -57,7 +58,7 @@ class GraphQL
                     ],
                 ],
             ]);
-        
+
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
                 'fields' => [
@@ -70,24 +71,24 @@ class GraphQL
                     ],
                 ],
             ]);
-        
+
             // See docs on schema options:
             // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
             $schema = new Schema(
                 (new SchemaConfig())
-                ->setQuery($queryType)
-                ->setMutation($mutationType)
+                    ->setQuery($queryType)
+                    ->setMutation($mutationType)
             );
-        
+
             $rawInput = file_get_contents('php://input');
             if ($rawInput === false) {
                 throw new RuntimeException('Failed to get php://input');
             }
-        
+
             $input = json_decode($rawInput, true);
             $query = $input['query'];
             $variableValues = $input['variables'] ?? null;
-        
+
             $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
             $output = $result->toArray();
         } catch (Throwable $e) {

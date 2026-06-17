@@ -21,6 +21,16 @@ class ProductFactory
         ];
 
         $class = $types[$category] ?? TechProduct::class;
-        return new $class($id, $name, $inStock, $description, $category, $brand, $gallery, $attributes, $prices);
+        return new $class(
+            $id,
+            $name,
+            $inStock,
+            $description,
+            $category,
+            $brand,
+            $gallery,
+            $attributes,
+            $prices
+        );
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use Exception;
+
 class Order extends AbstractModel
 {
     public function create(array $orderData): bool
@@ -35,7 +37,7 @@ class Order extends AbstractModel
 
             $pdo->commit();
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $pdo->rollBack();
             throw $e;
         }

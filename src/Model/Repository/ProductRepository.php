@@ -3,11 +3,70 @@
 namespace App\Model\Repository;
 
 use App\Model\AbstractModel;
+use App\Model\Attribute\AttributeFactory;
+use App\Model\Product\AbstractProduct;
+use App\Model\Product\ProductFactory;
 use PDO;
 
 class ProductRepository extends AbstractModel
 {
+    private ProductFactory $productFactory;
+    private AttributeFactory $attributeFactory;
+
+    public function __construct(PDO $db)
+    {
+        parent::__construct($db);
+        $this->productFactory = new ProductFactory();
+        $this->attributeFactory = new AttributeFactory();
+    }
+
     public function getAll(?string $category = null): array
+    {
+        $rows = $this->fetchAllRows($category);
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $this->buildProduct($row);
+        }
+
+        return $result;
+    }
+
+    public function getById(string $id): ?AbstractProduct
+    {
+        $row = $this->fetchOneRow($id);
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->buildProduct($row);
+    }
+
+    private function buildProduct(array $product): AbstractProduct
+    {
+        $attributeObjects = [];
+        foreach ($product['attributes'] as $attribute) {
+            $attributeObjects[] = $this->attributeFactory->create(
+                $attribute['type'],
+                $attribute['name'],
+                $attribute['items']
+            );
+        }
+
+        return $this->productFactory->create(
+            $product['id'],
+            $product['name'],
+            (bool) $product['in_stock'],
+            $product['description'],
+            $product['category'],
+            $product['brand'],
+            $product['gallery'],
+            $attributeObjects,
+            $product['prices']
+        );
+    }
+
+    private function fetchAllRows(?string $category = null): array
     {
         $db = $this->db;
 
@@ -28,29 +87,26 @@ class ProductRepository extends AbstractModel
         $productIds = array_column($productsRows, 'id');
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
 
-        // Gallery
         $gStmt = $db->prepare(
-            "SELECT product_id, image_url FROM product_gallery 
-             WHERE product_id IN ($placeholders) ORDER BY sort_order"
+            "SELECT product_id, image_url FROM product_gallery
+            WHERE product_id IN ($placeholders) ORDER BY sort_order"
         );
         $gStmt->execute($productIds);
         $galleries = $gStmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
 
-        // Prices
         $pStmt = $db->prepare(
-            "SELECT product_id, amount, currency_label, currency_symbol 
-             FROM prices WHERE product_id IN ($placeholders)"
+            "SELECT product_id, amount, currency_label, currency_symbol
+            FROM prices WHERE product_id IN ($placeholders)"
         );
         $pStmt->execute($productIds);
         $prices = $pStmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
 
-        // Attributes with items
         $aStmt = $db->prepare(
-            "SELECT a.product_id, a.id as attr_id, a.name, a.type, 
-                    ai.display_value, ai.value
-             FROM attributes a
-             LEFT JOIN attribute_items ai ON ai.attribute_id = a.id
-             WHERE a.product_id IN ($placeholders)"
+            "SELECT a.product_id, a.id as attr_id, a.name, a.type,
+            ai.display_value, ai.value
+            FROM attributes a
+            LEFT JOIN attribute_items ai ON ai.attribute_id = a.id
+            WHERE a.product_id IN ($placeholders)"
         );
         $aStmt->execute($productIds);
         $attributeRows = $aStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -101,7 +157,7 @@ class ProductRepository extends AbstractModel
         return $result;
     }
 
-    public function getById(string $id): array|false
+    private function fetchOneRow(string $id): array|false
     {
         $db = $this->db;
         $stmt = $db->prepare("SELECT * FROM products WHERE id = :id");
@@ -112,28 +168,26 @@ class ProductRepository extends AbstractModel
             return false;
         }
 
-        // Gallery
         $gStmt = $db->prepare(
-            "SELECT image_url FROM product_gallery 
-             WHERE product_id = :id ORDER BY sort_order"
+            "SELECT image_url FROM product_gallery
+            WHERE product_id = :id ORDER BY sort_order"
         );
         $gStmt->execute([':id' => $id]);
         $gallery = array_column($gStmt->fetchAll(PDO::FETCH_ASSOC), 'image_url');
 
-        // Prices
         $pStmt = $db->prepare(
-            "SELECT amount, currency_label, currency_symbol 
-             FROM prices WHERE product_id = :id"
+            "SELECT amount, currency_label, currency_symbol
+            FROM prices WHERE product_id = :id"
         );
         $pStmt->execute([':id' => $id]);
         $prices = $pStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Attributes with items
         $aStmt = $db->prepare(
-            "SELECT a.id as attr_id, a.name, a.type, ai.display_value, ai.value
-             FROM attributes a
-             LEFT JOIN attribute_items ai ON ai.attribute_id = a.id
-             WHERE a.product_id = :id"
+            "SELECT a.id as attr_id, a.name, a.type,
+            ai.display_value, ai.value
+            FROM attributes a
+            LEFT JOIN attribute_items ai ON ai.attribute_id = a.id
+            WHERE a.product_id = :id"
         );
         $aStmt->execute([':id' => $id]);
         $attributeRows = $aStmt->fetchAll(PDO::FETCH_ASSOC);

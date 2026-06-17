@@ -67,7 +67,7 @@ foreach ($data['products'] as $product) {
             ':currency_symbol' => $price['currency']['symbol'],
         ]);
     }
-    
+
     echo "Price added: " . $product['name'] . "\n";
 }
 
@@ -99,7 +99,7 @@ foreach ($data['products'] as $product) {
             ':type' => $attribute['type'],
         ]);
         $attributeId = $conn->lastInsertId();
-    
+
         foreach ($attribute['items'] as $item) {
             $stmtItems->execute([
                 ':attribute_id' => $attributeId,
